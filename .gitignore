@@ -13,3 +13,4 @@ env
 # Ignore environment files
 .env
 .env.*
+".env*" 
