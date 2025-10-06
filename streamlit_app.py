@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import datetime
 
-BASE_URL = "http://localhost:8000"  # Backend endpoint
+BASE_URL = "https://ai-trip-planner-f1dm.onrender.com"  # Backend endpoint
 
 st.set_page_config(
     page_title="🌍 Travel Planner Agentic Application",
