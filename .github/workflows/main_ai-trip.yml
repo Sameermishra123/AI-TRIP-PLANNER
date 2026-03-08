@@ -1,0 +1,45 @@
+name: Build and Deploy Docker App to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Login to Azure
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+
+      # Login to Azure Container Registry (ACR)
+      - name: ACR Login
+        run: |
+          az acr login --name aitripregistry
+
+      # Build Docker image
+      - name: Build Docker Image
+        run: |
+          docker build . -t aitripregistry.azurecr.io/ai_trip_planner:${{ github.sha }}
+
+      # Push Docker image to ACR
+      - name: Push Docker Image
+        run: |
+          docker push aitripregistry.azurecr.io/ai_trip_planner:${{ github.sha }}
+
+      # Deploy to Azure Web App for Containers
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'ai-trip-planner-app'   # your Azure Web App name
+          images: 'aitripregistry.azurecr.io/ai_trip_planner:${{ github.sha }}'
